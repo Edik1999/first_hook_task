@@ -2,17 +2,25 @@ import React, { useState, useEffect } from 'react';
 
 const List = ({onClickUser}) => {
 
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState([])
+    const [error, setError] = useState()
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         load()
     }, []);
 
     const load = () => {
+        setLoading(true)
         fetch("https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/users.json")
         .then(response=>response.json())
         .then(users=>{
-        setUsers(users)
+            setLoading(false)
+            setUsers(users)
+        })
+        .catch(error => {
+            setLoading(false)
+            setError(error.message)
         })
     }
 
@@ -24,11 +32,25 @@ const List = ({onClickUser}) => {
     }
 
     return (
-        <ul>
-            {users.map(user => 
-                <li key={user.id} onClick={(event) => clickHandler(event,user.id,user.name)}>{user.name}</li>
-            )}
-      </ul>
+        <>
+            {loading 
+                ?   
+                    <div className="loading"></div>
+                :
+                    <>
+                        {error 
+                            ?
+                                <>{error && <span>Ошибка!</span>}</>
+                            :   
+                                <ul>
+                                    {users.map(user => 
+                                        <li key={user.id} onClick={(event) => clickHandler(event,user.id,user.name)}>{user.name}</li>
+                                    )}
+                                </ul>
+                        }
+                    </>
+            }
+        </>
     );
 }
 
